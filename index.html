@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>台中聯洲公告資訊看板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <style>
@@ -10,19 +11,20 @@
       padding: 30px;
       font-family: "Noto Sans TC", sans-serif;
     }
-    .info-section {
-      width: 360px;
-      flex-shrink: 0;
+    table#announcementTable {
+      font-size: 1.25rem;
     }
     .table-scroll-wrapper {
-      max-height: 600px;
-      overflow-y: auto;
+      overflow-x: auto;
     }
-    table#announcementTable {
-      font-size: 1.25rem; /* 約等於 20px */
-    }
-    .d-flex {
-      gap: 30px;
+    @media (max-width: 768px) {
+      iframe {
+        width: 100% !important;
+        height: auto;
+      }
+      table#announcementTable {
+        font-size: 1rem;
+      }
     }
     h1, h2 {
       font-weight: bold;
@@ -30,29 +32,31 @@
   </style>
 </head>
 <body>
-  <div class="d-flex">
-    <!-- 左側資訊區 -->
-    <div class="info-section me-4">
-      <h1>台中聯洲公告資訊看板</h1>
-      <h2>服務時間：08:00 - 20:00</h2>
-      <h2>服務電話：<br>04-22309676</h2>
-      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3640.3359921218666!2d120.68774907934572!3d24.1599466!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x34693d004119674d%3A0xd134360f7b204340!2z6IGv5rSy5LyB566h6aGn5ZWP6IKh5Lu95pyJ6ZmQ5YWs5Y-4KOiCoeadseacg-e0gOW_teWTgSk!5e0!3m2!1szh-TW!2stw!4v1745984352646!5m2!1szh-TW!2stw"
-              width="300" height="300" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
+  <div class="container">
+    <div class="row">
+      <!-- 左側資訊區 -->
+      <div class="col-12 col-md-4 mb-4">
+        <h1>台中聯洲公告資訊看板</h1>
+        <h2>服務時間：08:00 - 20:00</h2>
+        <h2>服務電話：<br>04-22309676</h2>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3640.3359921218666!2d120.68774907934572!3d24.1599466!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x34693d004119674d%3A0xd134360f7b204340!2z6IGv5rSy5LyB566h6aGn5ZWP6IKh5Lu95pyJ6ZmQ5YWs5Y-4KOiCoeadseacg-e0gOW_teWTgSk!5e0!3m2!1szh-TW!2stw!4v1745984352646!5m2!1szh-TW!2stw"
+                width="100%" height="300" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
 
-    <!-- 右側表格區 -->
-    <div class="table-section flex-grow-1">
-      <h2>公開徵求項目</h2>
-      <div class="table-scroll-wrapper">
-        <table id="announcementTable" class="table table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>公司</th>
-              <th>日期</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <!-- 右側表格區 -->
+      <div class="col-12 col-md-8">
+        <h2>公開徵求項目</h2>
+        <div class="table-scroll-wrapper">
+          <table id="announcementTable" class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>公司</th>
+                <th>日期</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -61,50 +65,48 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-<script>
-  const csvUrl = "https://docs.google.com/spreadsheets/d/1B9OpmYzVpS70Cl6t6jeOkVnT21knBItR7ZHuf_XahCE/gviz/tq?tqx=out:csv";
+  <script>
+    const csvUrl = "https://docs.google.com/spreadsheets/d/1B9OpmYzVpS70Cl6t6jeOkVnT21knBItR7ZHuf_XahCE/gviz/tq?tqx=out:csv";
 
-  fetch(csvUrl)
-    .then(response => response.text())
-    .then(csv => {
-      Papa.parse(csv, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          const data = results.data;
-          const tbody = document.querySelector('#announcementTable tbody');
+    fetch(csvUrl)
+      .then(response => response.text())
+      .then(csv => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            const data = results.data;
+            const tbody = document.querySelector('#announcementTable tbody');
 
-          if (!data || data.length === 0) return;
+            if (!data || data.length === 0) return;
 
-          // 嘗試從第一筆非空資料找出欄位名稱
-          const sample = data.find(row => row && Object.keys(row).length > 0);
-          const keys = sample ? Object.keys(sample) : [];
-          const endKey = keys.find(k => k.includes("是否結束"));
+            const sample = data.find(row => row && Object.keys(row).length > 0);
+            const keys = sample ? Object.keys(sample) : [];
+            const endKey = keys.find(k => k.includes("是否結束"));
 
-          data.forEach(row => {
-            const company = row["公司"] ? row["公司"].trim() : "";
-            const date = row["日期"] ? row["日期"].trim() : "";
-            const end = endKey && row[endKey] ? row[endKey].trim() : "";
+            data.forEach(row => {
+              const company = row["公司"] ? row["公司"].trim() : "";
+              const date = row["日期"] ? row["日期"].trim() : "";
+              const end = endKey && row[endKey] ? row[endKey].trim() : "";
 
-            if (company !== "" && end !== "N") {
-              const tr = document.createElement("tr");
-              tr.innerHTML = `
-                <td>${company}</td>
-                <td>${date}</td>
-              `;
-              tbody.appendChild(tr);
-            }
-          });
+              if (company !== "" && end !== "N") {
+                const tr = document.createElement("tr");
+                tr.innerHTML = 
+                  <td>${company}</td>
+                  <td>${date}</td>
+                ;
+                tbody.appendChild(tr);
+              }
+            });
 
-          $('#announcementTable').DataTable({
-            language: {
-              url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
-            }
-          });
-        }
+            $('#announcementTable').DataTable({
+              language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
+              }
+            });
+          }
+        });
       });
-    });
-</script>
-
+  </script>
 </body>
 </html>
