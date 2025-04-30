@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>公告資訊看板</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      padding: 30px;
+      font-family: "Noto Sans TC", sans-serif;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>未結束公司公告列表</h1>
+  <table id="announcementTable" class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>編號</th>
+        <th>公司</th>
+        <th>日期</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script>
+    const csvUrl = "https://docs.google.com/spreadsheets/d/1B9OpmYzVpS70Cl6t6jeOkVnT21knBItR7ZHuf_XahCE/gviz/tq?tqx=out:csv";
+
+    fetch(csvUrl)
+      .then(response => response.text())
+      .then(csv => {
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results) {
+            const data = results.data;
+            const tbody = document.querySelector('#announcementTable tbody');
+
+            data.forEach(row => {
+              if (row["是否結束(打上N代表結束)"] !== "N") {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                  <td>${row["編號"]}</td>
+                  <td>${row["公司"]}</td>
+                  <td>${row["日期"]}</td>
+                `;
+                tbody.appendChild(tr);
+              }
+            });
+
+            $('#announcementTable').DataTable({
+              language: {
+                url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
+              }
+            });
+          }
+        });
+      });
+  </script>
+</body>
+</html>
+
