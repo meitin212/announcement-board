@@ -75,17 +75,17 @@
           const data = results.data;
           const tbody = document.querySelector('#announcementTable tbody');
 
-          // 自動取得「是否結束」欄位名稱
+          // 自動偵測「是否結束」欄位名（防止欄位變動）
           const keys = Object.keys(data[0]);
           const endKey = keys.find(k => k.includes("是否結束"));
 
+          let validCount = 0;
+
           data.forEach(row => {
             const hasCompany = row["公司"] && row["公司"].trim() !== "";
-            const hasDate = row["日期"] && row["日期"].trim() !== "";
-            const notEnded = !endKey || row[endKey] !== "N";
+            const notEnded = !endKey || row[endKey].trim() !== "N";
 
-            // 同時具備公司、日期且未結束，才顯示
-            if (hasCompany && hasDate && notEnded) {
+            if (hasCompany && notEnded) {
               const tr = document.createElement("tr");
               tr.innerHTML = `
                 <td>${row["編號"]}</td>
@@ -93,6 +93,7 @@
                 <td>${row["日期"]}</td>
               `;
               tbody.appendChild(tr);
+              validCount++;
             }
           });
 
@@ -101,10 +102,11 @@
               url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
             }
           });
+
+          console.log("有效資料筆數:", validCount);
         }
       });
     });
 </script>
-
 </body>
 </html>
