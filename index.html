@@ -74,24 +74,25 @@
           const data = results.data;
           const tbody = document.querySelector('#announcementTable tbody');
 
-          // 自動偵測「是否結束」欄位名（防止欄位變動）
-          const keys = Object.keys(data[0]);
+          if (!data || data.length === 0) return;
+
+          // 嘗試從第一筆非空資料找出欄位名稱
+          const sample = data.find(row => row && Object.keys(row).length > 0);
+          const keys = sample ? Object.keys(sample) : [];
           const endKey = keys.find(k => k.includes("是否結束"));
 
-          let validCount = 0;
-
           data.forEach(row => {
-            const hasCompany = row["公司"] && row["公司"].trim() !== "";
-            const notEnded = !endKey || row[endKey].trim() !== "N";
+            const company = row["公司"] ? row["公司"].trim() : "";
+            const date = row["日期"] ? row["日期"].trim() : "";
+            const end = endKey && row[endKey] ? row[endKey].trim() : "";
 
-            if (hasCompany && notEnded) {
+            if (company !== "" && end !== "N") {
               const tr = document.createElement("tr");
               tr.innerHTML = `
-                <td>${row["公司"]}</td>
-                <td>${row["日期"]}</td>
+                <td>${company}</td>
+                <td>${date}</td>
               `;
               tbody.appendChild(tr);
-              validCount++;
             }
           });
 
@@ -100,11 +101,10 @@
               url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
             }
           });
-
-          console.log("有效資料筆數:", validCount);
         }
       });
     });
 </script>
+
 </body>
 </html>
