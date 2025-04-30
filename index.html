@@ -62,44 +62,49 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script>
-    const csvUrl = "https://docs.google.com/spreadsheets/d/1B9OpmYzVpS70Cl6t6jeOkVnT21knBItR7ZHuf_XahCE/gviz/tq?tqx=out:csv";
-  
-    fetch(csvUrl)
-      .then(response => response.text())
-      .then(csv => {
-        Papa.parse(csv, {
-          header: true,
-          skipEmptyLines: true,
-          complete: function(results) {
-            const data = results.data;
-            const tbody = document.querySelector('#announcementTable tbody');
-  
-            const keys = Object.keys(data[0]);
-            const endKey = keys.find(k => k.includes("是否結束"));
-  
-            data.forEach(row => {
-              if (!row["編號"]) return; // 忽略空列
-  
-              if (!endKey || row[endKey] !== "N") {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                  <td>${row["編號"]}</td>
-                  <td>${row["公司"]}</td>
-                  <td>${row["日期"]}</td>
-                `;
-                tbody.appendChild(tr);
-              }
-            });
-  
-            $('#announcementTable').DataTable({
-              language: {
-                url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
-              }
-            });
-          }
-        });
+<script>
+  const csvUrl = "https://docs.google.com/spreadsheets/d/1B9OpmYzVpS70Cl6t6jeOkVnT21knBItR7ZHuf_XahCE/gviz/tq?tqx=out:csv";
+
+  fetch(csvUrl)
+    .then(response => response.text())
+    .then(csv => {
+      Papa.parse(csv, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          const data = results.data;
+          const tbody = document.querySelector('#announcementTable tbody');
+
+          // 自動取得「是否結束」欄位名稱
+          const keys = Object.keys(data[0]);
+          const endKey = keys.find(k => k.includes("是否結束"));
+
+          data.forEach(row => {
+            const hasCompany = row["公司"] && row["公司"].trim() !== "";
+            const hasDate = row["日期"] && row["日期"].trim() !== "";
+            const notEnded = !endKey || row[endKey] !== "N";
+
+            // 同時具備公司、日期且未結束，才顯示
+            if (hasCompany && hasDate && notEnded) {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td>${row["編號"]}</td>
+                <td>${row["公司"]}</td>
+                <td>${row["日期"]}</td>
+              `;
+              tbody.appendChild(tr);
+            }
+          });
+
+          $('#announcementTable').DataTable({
+            language: {
+              url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
+            }
+          });
+        }
       });
-  </script>
+    });
+</script>
+
 </body>
 </html>
