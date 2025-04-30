@@ -75,11 +75,12 @@
             const data = results.data;
             const tbody = document.querySelector('#announcementTable tbody');
   
-            // 自動找到「是否結束」欄位名稱（避免空格、全形等問題）
             const keys = Object.keys(data[0]);
             const endKey = keys.find(k => k.includes("是否結束"));
   
             data.forEach(row => {
+              if (!row["編號"]) return; // 忽略空列
+  
               if (!endKey || row[endKey] !== "N") {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
