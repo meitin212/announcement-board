@@ -54,7 +54,9 @@
                 <th>日期</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+              <tr><td colspan="2">資料載入中...</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -66,10 +68,13 @@
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script>
-    const csvUrl = "https://docs.google.com/spreadsheets/d/1B9OpmYzVpS70Cl6t6jeOkVnT21knBItR7ZHuf_XahCE/gviz/tq?tqx=out:csv";
+    const csvUrl = "https://docs.google.com/spreadsheets/d/1B9OpmYzVpS70Cl6t6jeOkVnT21knBItR7ZHuf_XahCE/export?format=csv";
 
     fetch(csvUrl)
-      .then(response => response.text())
+      .then(response => {
+        if (!response.ok) throw new Error("無法讀取 Google Sheet 資料");
+        return response.text();
+      })
       .then(csv => {
         Papa.parse(csv, {
           header: true,
@@ -77,24 +82,25 @@
           complete: function(results) {
             const data = results.data;
             const tbody = document.querySelector('#announcementTable tbody');
+            tbody.innerHTML = ""; // 清除「資料載入中...」
 
-            if (!data || data.length === 0) return;
+            if (!data || data.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="2">沒有資料</td></tr>`;
+              return;
+            }
 
             const sample = data.find(row => row && Object.keys(row).length > 0);
             const keys = sample ? Object.keys(sample) : [];
             const endKey = keys.find(k => k.includes("是否結束"));
 
             data.forEach(row => {
-              const company = row["公司"] ? row["公司"].trim() : "";
-              const date = row["日期"] ? row["日期"].trim() : "";
+              const company = row["公司"]?.trim() || "";
+              const date = row["日期"]?.trim() || "";
               const end = endKey && row[endKey] ? row[endKey].trim() : "";
 
               if (company !== "" && end !== "N") {
                 const tr = document.createElement("tr");
-                tr.innerHTML = `
-                  <td>${company}</td>
-                  <td>${date}</td>
-                 `;
+                tr.innerHTML = `<td>${company}</td><td>${date}</td>`;
                 tbody.appendChild(tr);
               }
             });
@@ -106,6 +112,11 @@
             });
           }
         });
+      })
+      .catch(error => {
+        console.error("載入資料失敗：", error);
+        const tbody = document.querySelector('#announcementTable tbody');
+        tbody.innerHTML = `<tr><td colspan="2">資料載入失敗，請稍後再試。</td></tr>`;
       });
   </script>
 </body>
